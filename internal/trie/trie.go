@@ -27,8 +27,7 @@ type Node struct {
 	children map[rune]*Node
 }
 
-// Add adds a key and value to the tree.  The value must be non-nil for it to be
-// considered terminal.
+// Add adds a key and value to the tree.  Terminal values must be non-nil.
 func (n *Node) Add(key string, val interface{}) {
 	// Walk the nodes for each key character and add any missing nodes along
 	// the way.
@@ -49,7 +48,8 @@ func (n *Node) Add(key string, val interface{}) {
 	cur.Val = val
 }
 
-// Children returns the immediate child nodes.
+// Children returns the immediate child nodes optionally sorted in
+// alphabetical order.
 func (n *Node) Children(sorted bool) []*Node {
 	children := make([]*Node, 0, len(n.children))
 	for _, child := range n.children {
@@ -103,25 +103,25 @@ func (n Node) dump(buf *bytes.Buffer, charTrail []rune, branches []bool, moreTwi
 }
 
 // Find returns the node that completes the key as much as possible while
-// remaining unique.
+// remaining unique.  The key is split by sep and each part is completed
+// individually.
 func (n *Node) Find(key string, sep rune) (match string, cur *Node) {
-	// Split the key into words and complete each one.
 	cur = n
-	words := strings.Split(key, string(sep))
-	for i := 0; i < len(words); i++ {
-		cur = cur.Get(words[i])
+	parts := strings.Split(key, string(sep))
+	for i := 0; i < len(parts); i++ {
+		cur = cur.Get(parts[i])
 		if cur == nil {
 			return
 		}
 
 		var m string
-		cur.walk(words[i], true, true, func(key string, n *Node) bool {
+		cur.walk(parts[i], true, true, func(key string, n *Node) bool {
 			m = key
 			cur = n
 
-			// Stop walking if it's not the last word and we hit
-			// a space.
-			return i == len(words)-1 || n.char != sep
+			// Stop walking if it's not the last part and we hit
+			// a separator.
+			return i == len(parts)-1 || n.char != sep
 		})
 
 		match = match + m
@@ -168,7 +168,7 @@ func (n Node) Match(key string) <-chan string {
 	return matches
 }
 
-// String retruns a pretty-print string of the node and all its children.
+// String retruns a pretty-printed string of the node and all its children.
 func (n Node) String() string {
 	var buf bytes.Buffer
 	n.dump(&buf, []rune{}, []bool{}, false)
@@ -185,15 +185,15 @@ func (n *Node) walk(key string, onlyUniq bool, fAll bool, f walkFunc) {
 		return
 	}
 
-	// Call user function if the node is terminal or we were asked to for
-	// all walks.
+	// Call the user function if we were asked to for every all node or if
+	// the node is terminal.
 	if fAll || n.Val != nil {
 		if !f(key, n) {
 			return
 		}
 	}
 
-	// Recurse the child nodes.
+	// Recurse the child nodes in order.
 	for _, child := range n.Children(true) {
 		child.walk(key+string(child.char), onlyUniq, fAll, f)
 	}

@@ -27,15 +27,15 @@ Node represents an entire prefix tree or a node within it.
 ```go
 func (n *Node) Add(key string, val interface{})
 ```
-Add adds a key and value to the tree. The value must be non-nil for it to be
-considered terminal.
+Add adds a key and value to the tree. Terminal values must be non-nil.
 
 #### func (*Node) Children
 
 ```go
 func (n *Node) Children(sorted bool) []*Node
 ```
-Children returns the immediate child nodes.
+Children returns the immediate child nodes optionally sorted in alphabetical
+order.
 
 #### func (*Node) Find
 
@@ -43,7 +43,7 @@ Children returns the immediate child nodes.
 func (n *Node) Find(key string, sep rune) (match string, cur *Node)
 ```
 Find returns the node that completes the key as much as possible while remaining
-unique.
+unique. The key is split by sep and each part is completed individually.
 
 #### func (*Node) Get
 
@@ -64,4 +64,4 @@ Match returns all possible completions for the given key.
 ```go
 func (n Node) String() string
 ```
-String retruns a pretty-print string of the node and all its children.
+String retruns a pretty-printed string of the node and all its children.
