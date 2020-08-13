@@ -36,8 +36,8 @@ func (sh Shell) Exec(conn net.Conn, s string) error {
 	for i := 0; i < len(tokens); i++ {
 		cmd := strings.Join(tokens[:i+1], " ")
 
-		if match, cur := sh.cmds.Find(cmd); cur != nil && cur.Val() != nil {
-			return cur.Val().(cmdFunc)(Env{
+		if match, cur := sh.cmds.Find(cmd, ' '); cur != nil && cur.Val != nil {
+			return cur.Val.(cmdFunc)(Env{
 				Conn: conn,
 				args: append([]string{match}, tokens[i+1:]...)})
 		}

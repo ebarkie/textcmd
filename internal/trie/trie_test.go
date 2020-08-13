@@ -26,7 +26,7 @@ var testKeys = [...]string{
 	"trend",
 	"uname",
 	"uptime",
-	"ver",
+	"version",
 	"watch conditions",
 	"watch log debug",
 	"watch log trace",
@@ -142,7 +142,11 @@ func ExampleNode_String() {
 	//      |                   `--(e) => "uptime": <value for "uptime">
 	//      `--(v)
 	//      |   `--(e)
-	//      |       `--(r) => "ver": <value for "ver">
+	//      |       `--(r)
+	//      |           `--(s)
+	//      |               `--(i)
+	//      |                   `--(o)
+	//      |                       `--(n) => "version": <value for "version">
 	//      `--(w)
 	//          `--(a)
 	//          |   `--(t)
@@ -181,6 +185,7 @@ func ExampleNode_String() {
 	//                  `--(a)
 	//                      `--(m)
 	//                          `--(i) => "whoami": <value for "whoami">
+
 }
 
 func TestNode_Add(t *testing.T) {
@@ -194,9 +199,15 @@ func TestNode_Find(t *testing.T) {
 		match string
 		val   interface{}
 	}{
+		{"d", "date", testVal("date")},
+		{"l", "l", nil},
+		{"l off", "l", nil},
 		{"la", "lamps o", nil},
 		{"la on", "lamps on", testVal("lamps on")},
+		{"lamps off", "lamps off", testVal("lamps off")},
+		{"log", "logout", testVal("logout")},
 		{"up", "uptime", testVal("uptime")},
+		{"version", "version", testVal("version")},
 		{"w c", "w", nil},
 		{"wa c", "watch conditions", testVal("watch conditions")},
 		{"wa z", "watch ", nil},
@@ -208,15 +219,15 @@ func TestNode_Find(t *testing.T) {
 		{"wh", "whoami", testVal("whoami")},
 	} {
 		t.Run(test.key, func(t *testing.T) {
-			match, cur := n.Find(test.key)
+			match, cur := n.Find(test.key, ' ')
 			if match != test.match {
 				t.Errorf("%q match is %q but expected %q", test.key, match, test.match)
 			}
 
 			if cur == nil && test.val != nil {
 				t.Errorf("%q value is <nil> but expected %v", test.key, test.val)
-			} else if cur != nil && cur.Val() != nil && cur.val != test.val {
-				t.Errorf("%q value is %v but expected %v", test.key, cur.Val(), test.val)
+			} else if cur != nil && cur.Val != nil && cur.Val != test.val {
+				t.Errorf("%q value is %v but expected %v", test.key, cur.Val, test.val)
 			}
 		})
 	}
@@ -241,8 +252,8 @@ func TestNode_Get(t *testing.T) {
 			cur := n.Get(test.key)
 			if cur == nil && test.val != nil {
 				t.Errorf("%q value is <nil> but expected %v", test.key, test.val)
-			} else if cur != nil && cur.Val() != nil && cur.val != test.val {
-				t.Errorf("%q value is %v but expected %v", test.key, cur.Val(), test.val)
+			} else if cur != nil && cur.Val != nil && cur.Val != test.val {
+				t.Errorf("%q value is %v but expected %v", test.key, cur.Val, test.val)
 			}
 		})
 	}

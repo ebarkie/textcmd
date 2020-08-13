@@ -19,9 +19,9 @@ type Node struct {
 	// (\x00).
 	char rune
 
-	// val is the value of the node if it's terminal, otherwise it will be
+	// Val is the value of the node if it's terminal, otherwise it will be
 	// nil.
-	val interface{}
+	Val interface{}
 
 	// children is a map of child nodes keyed by the char.
 	children map[rune]*Node
@@ -46,7 +46,7 @@ func (n *Node) Add(key string, val interface{}) {
 	}
 
 	// The current node is the end of the key so set the value.
-	cur.val = val
+	cur.Val = val
 }
 
 // Children returns the immediate child nodes.
@@ -87,8 +87,8 @@ func (n Node) dump(buf *bytes.Buffer, charTrail []rune, branches []bool, moreTwi
 		charTrail = append(charTrail, n.char)
 	}
 	buf.WriteRune(')')
-	if n.val != nil {
-		fmt.Fprintf(buf, " => \"%s\": %s", string(charTrail), n.val)
+	if n.Val != nil {
+		fmt.Fprintf(buf, " => \"%s\": %s", string(charTrail), n.Val)
 	}
 
 	buf.WriteString("\n")
@@ -104,34 +104,28 @@ func (n Node) dump(buf *bytes.Buffer, charTrail []rune, branches []bool, moreTwi
 
 // Find returns the node that completes the key as much as possible while
 // remaining unique.
-func (n *Node) Find(key string) (match string, cur *Node) {
-	cur = n
-
+func (n *Node) Find(key string, sep rune) (match string, cur *Node) {
 	// Split the key into words and complete each one.
-	for _, w := range strings.Split(key, " ") {
-		cur = cur.Get(w)
+	cur = n
+	words := strings.Split(key, string(sep))
+	for i := 0; i < len(words); i++ {
+		cur = cur.Get(words[i])
 		if cur == nil {
 			return
 		}
 
 		var m string
-		cur.walk(w, true, true, func(key string, n *Node) bool {
+		cur.walk(words[i], true, true, func(key string, n *Node) bool {
 			m = key
 			cur = n
 
-			return n.char != ' '
+			// Stop walking if it's not the last word and we hit
+			// a space.
+			return i == len(words)-1 || n.char != sep
 		})
 
 		match = match + m
 	}
-
-	// Complete anything after the last word.
-	cur.walk(match, true, false, func(key string, n *Node) bool {
-		match = key
-		cur = n
-
-		return true
-	})
 
 	return
 }
@@ -181,11 +175,6 @@ func (n Node) String() string {
 	return buf.String()
 }
 
-// Val returns the node value.
-func (n Node) Val() interface{} {
-	return n.val
-}
-
 type walkFunc func(string, *Node) bool
 
 func (n *Node) walk(key string, onlyUniq bool, fAll bool, f walkFunc) {
@@ -198,13 +187,13 @@ func (n *Node) walk(key string, onlyUniq bool, fAll bool, f walkFunc) {
 
 	// Call user function if the node is terminal or we were asked to for
 	// all walks.
-	if fAll || n.val != nil {
+	if fAll || n.Val != nil {
 		if !f(key, n) {
 			return
 		}
 	}
 
-	// Walk the child nodes.
+	// Recurse the child nodes.
 	for _, child := range n.Children(true) {
 		child.walk(key+string(child.char), onlyUniq, fAll, f)
 	}
