@@ -124,7 +124,7 @@ func (n *Node) Find(key string, sep rune) (match string, cur *Node) {
 			return i == len(parts)-1 || n.char != sep
 		})
 
-		match = match + m
+		match += m
 	}
 
 	return
