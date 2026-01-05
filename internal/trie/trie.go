@@ -21,14 +21,14 @@ type Node struct {
 
 	// Val is the value of the node if it's terminal, otherwise it will be
 	// nil.
-	Val interface{}
+	Val any
 
 	// children is a map of child nodes keyed by the char.
 	children map[rune]*Node
 }
 
 // Add adds a key and value to the tree.  Terminal values must be non-nil.
-func (n *Node) Add(key string, val interface{}) {
+func (n *Node) Add(key string, val any) {
 	// Walk the nodes for each key character and add any missing nodes along
 	// the way.
 	cur := n

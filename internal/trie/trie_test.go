@@ -34,7 +34,7 @@ var testKeys = [...]string{
 	"whoami",
 }
 
-func testVal(key string) interface{} {
+func testVal(key string) any {
 	return "<value for \"" + key + "\">"
 }
 
@@ -197,7 +197,7 @@ func TestNode_Find(t *testing.T) {
 	for _, test := range []struct {
 		key   string
 		match string
-		val   interface{}
+		val   any
 	}{
 		{"d", "date", testVal("date")},
 		{"l", "l", nil},
@@ -237,7 +237,7 @@ func TestNode_Get(t *testing.T) {
 	n := testTree()
 	for _, test := range []struct {
 		key string
-		val interface{}
+		val any
 	}{
 		{"", nil},
 		{"?", testVal("?")},
