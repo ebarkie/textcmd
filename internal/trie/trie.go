@@ -108,7 +108,7 @@ func (n Node) dump(buf *bytes.Buffer, charTrail []rune, branches []bool, moreTwi
 func (n *Node) Find(key string, sep rune) (match string, cur *Node) {
 	cur = n
 	parts := strings.Split(key, string(sep))
-	for i := 0; i < len(parts); i++ {
+	for i := range parts {
 		cur = cur.Get(parts[i])
 		if cur == nil {
 			return

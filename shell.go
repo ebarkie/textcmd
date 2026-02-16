@@ -33,7 +33,7 @@ type Shell struct {
 // Exec attempts to execute the passed string as a command.
 func (sh Shell) Exec(conn net.Conn, s string) error {
 	tokens := strings.Split(s, " ")
-	for i := 0; i < len(tokens); i++ {
+	for i := range tokens {
 		cmd := strings.Join(tokens[:i+1], " ")
 
 		if match, cur := sh.cmds.Find(cmd, ' '); cur != nil && cur.Val != nil {
