@@ -286,7 +286,7 @@ func TestNode_Match(t *testing.T) {
 				i++
 			}
 			if i < len(test.keys) {
-				t.Errorf("%q: missing %q", test.key, test.keys[i-1:])
+				t.Errorf("%q: missing %q", test.key, test.keys[i:])
 			}
 		})
 	}

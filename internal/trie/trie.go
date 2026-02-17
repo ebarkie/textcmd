@@ -9,6 +9,7 @@ package trie
 import (
 	"bytes"
 	"fmt"
+	"iter"
 	"sort"
 	"strings"
 )
@@ -147,28 +148,20 @@ func (n *Node) Get(key string) *Node {
 }
 
 // Match returns all possible completions for the given key.
-func (n Node) Match(key string) <-chan string {
-	matches := make(chan string)
-
-	go func() {
-		defer close(matches)
-
+func (n Node) Match(key string) iter.Seq[string] {
+	return func(yield func(string) bool) {
 		cur := n.Get(key)
 		if cur == nil {
 			return
 		}
 
 		cur.walk(key, false, false, func(key string, n *Node) bool {
-			matches <- key
-
-			return true
+			return yield(key)
 		})
-	}()
-
-	return matches
+	}
 }
 
-// String retruns a pretty-printed string of the node and all its children.
+// String returns a pretty-printed string of the node and all its children.
 func (n Node) String() string {
 	var buf bytes.Buffer
 	n.dump(&buf, []rune{}, []bool{}, false)

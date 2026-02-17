@@ -8,6 +8,7 @@ package textcmd
 
 import (
 	"errors"
+	"iter"
 	"net"
 	"strings"
 
@@ -32,7 +33,7 @@ type Shell struct {
 
 // Exec attempts to execute the passed string as a command.
 func (sh Shell) Exec(conn net.Conn, s string) error {
-	tokens := strings.Split(s, " ")
+	tokens := strings.Fields(s)
 	for i := range tokens {
 		cmd := strings.Join(tokens[:i+1], " ")
 
@@ -44,6 +45,19 @@ func (sh Shell) Exec(conn net.Conn, s string) error {
 	}
 
 	return ErrCmdNotFound
+}
+
+// Complete returns the input expanded as far as possible and all possible full
+// command strings.
+func (sh Shell) Complete(s string) (completion string, matches iter.Seq[string]) {
+	completion, _ = sh.cmds.Find(s, ' ')
+	if completion == "" {
+		completion = s
+	}
+
+	matches = sh.cmds.Match(completion)
+
+	return
 }
 
 // Register adds a command to the text command shell.  It takes a
