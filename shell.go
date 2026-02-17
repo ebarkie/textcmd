@@ -8,8 +8,8 @@ package textcmd
 
 import (
 	"errors"
+	"io"
 	"iter"
-	"net"
 	"strings"
 
 	"github.com/ebarkie/textcmd/internal/trie"
@@ -32,14 +32,14 @@ type Shell struct {
 }
 
 // Exec attempts to execute the passed string as a command.
-func (sh Shell) Exec(conn net.Conn, s string) error {
+func (sh Shell) Exec(rw io.ReadWriter, s string) error {
 	tokens := strings.Fields(s)
 	for i := range tokens {
 		cmd := strings.Join(tokens[:i+1], " ")
 
 		if match, cur := sh.cmds.Find(cmd, ' '); cur != nil && cur.Val != nil {
 			return cur.Val.(cmdFunc)(Env{
-				Conn: conn,
+				ReadWriter: rw,
 				args: append([]string{match}, tokens[i+1:]...)})
 		}
 	}

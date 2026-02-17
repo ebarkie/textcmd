@@ -20,7 +20,7 @@ Errors.
 
 ```go
 type Env struct {
-	net.Conn
+	io.ReadWriter
 }
 ```
 
@@ -46,7 +46,7 @@ Shell is a text command shell for which commands can be registered and executed.
 #### func (Shell) Exec
 
 ```go
-func (sh Shell) Exec(conn net.Conn, s string) error
+func (sh Shell) Exec(rw io.ReadWriter, s string) error
 ```
 Exec attempts to execute the passed string as a command.
 

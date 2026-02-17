@@ -5,13 +5,13 @@
 package textcmd
 
 import (
-	"net"
+	"io"
 	"strings"
 )
 
 // Env is the command environment passed to a function.
 type Env struct {
-	net.Conn
+	io.ReadWriter
 	args []string
 }
 
