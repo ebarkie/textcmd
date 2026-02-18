@@ -5,6 +5,8 @@
 package textcmd
 
 import (
+	"context"
+	"io"
 	"slices"
 	"testing"
 )
@@ -35,7 +37,7 @@ func testShell() Shell {
 		"watch loops",
 		"whoami",
 	} {
-		sh.Register(func(Env) error { return nil }, cmd)
+		sh.Register(func(context.Context, io.ReadWriter, ...string) error { return nil }, cmd)
 	}
 
 	return sh
