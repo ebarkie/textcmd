@@ -62,6 +62,6 @@ func (sh Shell) Complete(s string) (completion string, matches iter.Seq[string])
 // command function and command execution strings.
 func (sh *Shell) Register(f CmdFunc, cmd ...string) {
 	for _, c := range cmd {
-		sh.cmds.Add(c, CmdFunc(f))
+		sh.cmds.Add(c, f)
 	}
 }
